@@ -1,0 +1,5 @@
+{
+  "name": "dotanote - Transcripción Inteligente",
+  "description": "Aplicación de transcripción de voz a texto utilizando IA (Gemini API o local) con soporte para atajos de teclado y edición accesible.",
+  "requestFramePermissions": ["microphone"]
+}
