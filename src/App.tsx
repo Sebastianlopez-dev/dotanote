@@ -32,6 +32,14 @@ import {
   loadMagicFormats,
 } from './lib/settings';
 import {
+  addHistoryEntry,
+  deleteHistoryEntry,
+  togglePin as togglePinEntry,
+  loadHistory,
+  saveHistory,
+  clearHistory,
+} from './lib/history';
+import {
   LocalTranscriber,
   TranscriptionResult,
   TranscriptionModel,
@@ -52,7 +60,7 @@ export default function App() {
   const [isRecording, setIsRecording] = useState(false);
   const [isMac, setIsMac] = useState(false);
   const [currentText, setCurrentText] = useState('');
-  const [history, setHistory] = useState<TranscriptionResult[]>([]);
+  const [history, setHistory] = useState<TranscriptionResult[]>(loadHistory);
   const [model, setModel] = useState<TranscriptionModel>('gemini');
   const [hotkey, setHotkey] = useState('r'); // Default Alt + R
   const [autoCopy, setAutoCopy] = useState(true);
@@ -224,21 +232,9 @@ export default function App() {
     draw();
   }, []);
 
-  // Load history from localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem('vozia-history');
-    if (saved) {
-      try {
-        setHistory(JSON.parse(saved));
-      } catch (e) {
-        console.error('Error loading history', e);
-      }
-    }
-  }, []);
-
   // Save history to localStorage
   useEffect(() => {
-    localStorage.setItem('vozia-history', JSON.stringify(history));
+    saveHistory(history);
   }, [history]);
 
   // Detect OS
@@ -461,18 +457,13 @@ export default function App() {
   };
 
   const addResult = (text: string, metadata?: ModelMetadata) => {
-    const newResult: TranscriptionResult = {
-      id: crypto.randomUUID(),
-      text,
-      metadata,
-      timestamp: Date.now(),
-    };
-    setHistory((prev) => [newResult, ...prev]);
+    const newEntry = addHistoryEntry([], text, metadata)[0];
+    setHistory((prev) => [newEntry, ...prev]);
     setCurrentText('');
 
     if (autoCopy) {
       navigator.clipboard.writeText(text);
-      setCopiedId(newResult.id);
+      setCopiedId(newEntry.id);
       setTimeout(() => setCopiedId(null), 2000);
     }
   };
@@ -484,13 +475,11 @@ export default function App() {
   };
 
   const deleteResult = (id: string) => {
-    setHistory((prev) => prev.filter((item) => item.id !== id));
+    setHistory((prev) => deleteHistoryEntry(prev, id));
   };
 
-  const togglePin = (id: string) => {
-    setHistory((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, isPinned: !item.isPinned } : item))
-    );
+  const handleTogglePin = (id: string) => {
+    setHistory((prev) => togglePinEntry(prev, id));
   };
 
   const handleEnhance = async (id: string, formatId?: string) => {
@@ -544,8 +533,8 @@ export default function App() {
     }
   };
 
-  const clearHistory = () => {
-    setHistory([]);
+  const handleClearHistory = () => {
+    setHistory(clearHistory());
     setIsClearModalOpen(false);
   };
 
@@ -667,7 +656,7 @@ export default function App() {
               history={history}
               isRecording={isRecording}
               toggleRecording={toggleRecording}
-              onPin={togglePin}
+              onPin={handleTogglePin}
               onDelete={deleteResult}
               onCopy={copyToClipboard}
               onEnhance={handleEnhance}
