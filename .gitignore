@@ -6,3 +6,14 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Agent / AI tool config (not part of the app)
+AGENTS.md
+CLAUDE.md
+memory.md
+implementation_plan*.md
+
+# Temp / tool-generated directories
+.uipro-temp/
+.gemini/
+.atl/
