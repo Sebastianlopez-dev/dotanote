@@ -9,29 +9,49 @@ export class AIOrchestrator {
   private transcribeProviders: AIProvider[] = [];
   private enhanceProviders: AIProvider[] = [];
 
-  constructor(config: AIConfig) {
-    // 1. Transcription Priority: Groq (Whisper) -> Gemini
-    const groqKey = config.useCustomKeys
-      ? config.groqKey
-      : (import.meta as any).env.VITE_GROQ_API_KEY;
-    const geminiKey = config.useCustomKeys
-      ? config.geminiKey
-      : (import.meta as any).env.VITE_GEMINI_API_KEY;
+  constructor(
+    config: AIConfig,
+    factories?: {
+      createTranscribeProviders?: (config: AIConfig) => AIProvider[];
+      createEnhanceProviders?: (config: AIConfig) => AIProvider[];
+    }
+  ) {
+    if (factories?.createTranscribeProviders) {
+      this.transcribeProviders = factories.createTranscribeProviders(config);
+    } else {
+      // 1. Transcription Priority: Groq (Whisper) -> Gemini
+      const groqKey = config.useCustomKeys
+        ? config.groqKey
+        : (import.meta as any).env.VITE_GROQ_API_KEY;
+      const geminiKey = config.useCustomKeys
+        ? config.geminiKey
+        : (import.meta as any).env.VITE_GEMINI_API_KEY;
 
-    if (groqKey) this.transcribeProviders.push(new GroqProvider(groqKey));
-    if (geminiKey) this.transcribeProviders.push(new GeminiProvider(geminiKey));
+      if (groqKey) this.transcribeProviders.push(new GroqProvider(groqKey));
+      if (geminiKey) this.transcribeProviders.push(new GeminiProvider(geminiKey));
+    }
 
-    // 2. Enhancement Priority: Claude -> Qwen -> Gemini -> Groq -> OpenRouter
-    const anthropicKey = config.useCustomKeys ? config.anthropicKey : undefined;
-    const qwenKey = config.useCustomKeys ? config.qwenKey : undefined;
-    const openRouterKey = config.useCustomKeys ? config.openRouterKey : undefined;
+    if (factories?.createEnhanceProviders) {
+      this.enhanceProviders = factories.createEnhanceProviders(config);
+    } else {
+      // 2. Enhancement Priority: Claude -> Qwen -> Gemini -> Groq -> OpenRouter
+      const geminiKey = config.useCustomKeys
+        ? config.geminiKey
+        : (import.meta as any).env.VITE_GEMINI_API_KEY;
+      const groqKey = config.useCustomKeys
+        ? config.groqKey
+        : (import.meta as any).env.VITE_GROQ_API_KEY;
+      const anthropicKey = config.useCustomKeys ? config.anthropicKey : undefined;
+      const qwenKey = config.useCustomKeys ? config.qwenKey : undefined;
+      const openRouterKey = config.useCustomKeys ? config.openRouterKey : undefined;
 
-    if (anthropicKey) this.enhanceProviders.push(new AnthropicProvider(anthropicKey));
-    if (qwenKey) this.enhanceProviders.push(new QwenProvider(qwenKey, config.qwenModel));
-    if (geminiKey) this.enhanceProviders.push(new GeminiProvider(geminiKey));
-    if (groqKey) this.enhanceProviders.push(new GroqProvider(groqKey));
-    if (openRouterKey)
-      this.enhanceProviders.push(new OpenRouterProvider(openRouterKey, config.openRouterModel));
+      if (anthropicKey) this.enhanceProviders.push(new AnthropicProvider(anthropicKey));
+      if (qwenKey) this.enhanceProviders.push(new QwenProvider(qwenKey, config.qwenModel));
+      if (geminiKey) this.enhanceProviders.push(new GeminiProvider(geminiKey));
+      if (groqKey) this.enhanceProviders.push(new GroqProvider(groqKey));
+      if (openRouterKey)
+        this.enhanceProviders.push(new OpenRouterProvider(openRouterKey, config.openRouterModel));
+    }
   }
 
   async transcribe(
