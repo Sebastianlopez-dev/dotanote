@@ -24,41 +24,19 @@ import { AudioSettings, GeneralSettings, ModelMetadata, MagicFormat, AIConfig } 
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
 import {
+  createDefaultAIConfig,
+  createDefaultGeneralSettings,
+  createDefaultMagicFormats,
+  loadAIConfig,
+  loadGeneralSettings,
+  loadMagicFormats,
+} from './lib/settings';
+import {
   LocalTranscriber,
   TranscriptionResult,
   TranscriptionModel,
 } from './services/transcription';
 import { AIOrchestrator } from './services/AIOrchestrator';
-
-const DEFAULT_FORMATS: MagicFormat[] = [
-  {
-    id: 'default',
-    name: 'Executive',
-    prompt:
-      'Actúa como un asistente ejecutivo experto. Transforma esta transcripción en una nota profesional y estructurada.',
-    isDefault: true,
-    isPinned: true,
-  },
-  {
-    id: 'formal',
-    name: 'Formal',
-    prompt: 'Reescribe este texto con un tono altamente profesional, formal y corporativo.',
-    isPinned: true,
-  },
-  {
-    id: 'casual',
-    name: 'Casual',
-    prompt: 'Reescribe este texto con un tono cercano, amigable y conversacional.',
-    isPinned: true,
-  },
-  {
-    id: 'puntual',
-    name: 'Puntual',
-    prompt:
-      'Extrae los puntos clave de este texto y preséntalos en una lista de viñetas (bullet points) concisa.',
-    isPinned: true,
-  },
-];
 
 const LANGUAGES = [
   { id: 'en', label: 'EN', localCode: 'en-US', geminiPrompt: 'inglés' },
@@ -99,19 +77,13 @@ export default function App() {
   const timerIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
-  const [magicFormats, setMagicFormats] = useState<MagicFormat[]>(() => {
-    const saved = localStorage.getItem('vnote_formats');
-    return saved ? JSON.parse(saved) : DEFAULT_FORMATS;
-  });
+  const [magicFormats, setMagicFormats] = useState<MagicFormat[]>(loadMagicFormats);
 
   useEffect(() => {
     localStorage.setItem('vnote_formats', JSON.stringify(magicFormats));
   }, [magicFormats]);
 
-  const [aiConfig, setAiConfig] = useState<AIConfig>(() => {
-    const saved = localStorage.getItem('vnote_ai_config');
-    return saved ? JSON.parse(saved) : { useCustomKeys: false };
-  });
+  const [aiConfig, setAiConfig] = useState<AIConfig>(loadAIConfig);
 
   useEffect(() => {
     localStorage.setItem('vnote_ai_config', JSON.stringify(aiConfig));
@@ -147,18 +119,7 @@ export default function App() {
     monitoring: false,
   });
 
-  const [generalSettings, setGeneralSettings] = useState<GeneralSettings>(() => {
-    const saved = localStorage.getItem('vnote_general_settings');
-    return saved
-      ? JSON.parse(saved)
-      : {
-          language: 'es',
-          autoExportFormat: 'none',
-          showHints: true,
-          defaultSidebarVisible: true,
-          defaultDashboardVisible: true,
-        };
-  });
+  const [generalSettings, setGeneralSettings] = useState<GeneralSettings>(loadGeneralSettings);
 
   useEffect(() => {
     localStorage.setItem('vnote_general_settings', JSON.stringify(generalSettings));
