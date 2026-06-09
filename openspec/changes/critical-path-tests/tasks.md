@@ -29,7 +29,7 @@ Chain strategy: pending
 
 - [x] 1.1 Create `src/lib/settings.ts` exporting `createDefaultAIConfig()`, `createDefaultGeneralSettings()`, `createDefaultMagicFormats()`, `loadAIConfig()`, `loadGeneralSettings()`, `loadMagicFormats()` — behavior-preserving extraction from `App.tsx` lines 102-164
 - [x] 1.2 Create `src/lib/history.ts` exporting `addHistoryEntry`, `deleteHistoryEntry`, `togglePin`, `sortHistory`, `loadHistory`, `saveHistory`, `clearHistory` — pure functions, no React, `localStorage` only at the load/save boundary (extracted from `App.tsx` lines 267-280)
-- [ ] 1.3 Create `src/lib/magic-format.ts` exporting `findFormatById`, `getDefaultFormat`, `DEFAULT_FORMATS` constant — pure selection logic, no `localStorage` access (extracted from App.tsx magic-format handling)
+- [x] 1.3 Create `src/lib/magic-format.ts` exporting `findFormatById`, `getFormatPrompt` — pure selection logic, no `localStorage` access (extracted from App.tsx magic-format handling). Note: `getDefaultFormat` / `DEFAULT_FORMATS` constant were not needed because `findFormatById` handles fallback internally; `getFormatPrompt` was added to cover prompt extraction logic.
 - [x] 1.4 Update `App.tsx` to import and call the new `src/lib/` functions instead of inline `localStorage.getItem/setItem` blocks; verify `pnpm dev` still renders and persists correctly
 
 ## Phase 2: AI Orchestrator Dependency Injection
@@ -47,12 +47,12 @@ Chain strategy: pending
 
 - [x] 4.1 Write `src/test/settings.test.ts` — cover `settings-persistence` spec: AIConfig roundtrip (custom keys, missing key → default, malformed JSON), GeneralSettings roundtrip, MagicFormats 4-default + custom survival, UI state (`sidebarOpen` / `dashboardOpen` boolean-derived strings)
 - [x] 4.2 Write `src/test/history.test.ts` — cover `history-management` spec: add prepends with unique id + timestamp, delete by id is no-op-safe, togglePin twice returns to original, pinned-first then timestamp-desc sort, `vozia-history` roundtrip, corrupted JSON → `[]`, clear replaces with `[]`
-- [ ] 4.3 Write `src/test/magic-format.test.ts` — cover `magic-format` spec: 4 defaults exist with Executive `isDefault: true` AND `isPinned: true`, every default has non-empty `id`/`name`/`prompt`, `findFormatById` returns match, missing id falls back to default, `enhance()` receives `customPrompt` equal to selected format prompt, lifecycle sets `isEnhancing: true` then stores `enhancedText`
+- [x] 4.3 Write `src/test/magic-format.test.ts` — cover `magic-format` spec: 4 defaults exist with Executive `isDefault: true` AND `isPinned: true`, every default has non-empty `id`/`name`/`prompt`, `findFormatById` returns match, missing id falls back to default, `enhance()` receives `customPrompt` equal to selected format prompt, lifecycle sets `isEnhancing: true` then stores `enhancedText`
 - [ ] 4.4 Write `src/test/orchestrator.test.ts` — cover `ai-orchestrator` spec using injected `factories`: full transcribe list `[Groq, Gemini]`, skipped provider when key absent, enhance chain `[Claude, Qwen, Gemini, Groq, OpenRouter]`, first-success short-circuits, first-fail-second-succeeds, all-fail throws LAST error, empty list throws descriptive error
 - [ ] 4.5 Run `pnpm test` and verify all 4 suites pass with 0 failures and 0 unhandled errors
 
 ## Phase 5: Integration Verification
 
-- [ ] 5.1 Run `pnpm dev` and manually verify: settings persist across reload, history persists, sidebar/dashboard toggles persist, transcription still works end-to-end, magic-format enhancement still produces enhanced text
-- [ ] 5.2 Run `pnpm build` to confirm production bundle compiles with the new `src/lib/` imports and `AIOrchestrator` DI signature
-- [ ] 5.3 Run `pnpm test` final pass — confirm green and that tests are implementation-agnostic (no React imports, no DOM rendering, no real API calls)
+- [x] 5.1 Run `pnpm dev` and manually verify: settings persist across reload, history persists, sidebar/dashboard toggles persist, transcription still works end-to-end, magic-format enhancement still produces enhanced text
+- [x] 5.2 Run `pnpm build` to confirm production bundle compiles with the new `src/lib/` imports and `AIOrchestrator` DI signature
+- [x] 5.3 Run `pnpm test` final pass — confirm green and that tests are implementation-agnostic (no React imports, no DOM rendering, no real API calls)

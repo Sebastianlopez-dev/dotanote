@@ -39,6 +39,7 @@ import {
   saveHistory,
   clearHistory,
 } from './lib/history';
+import { findFormatById, getFormatPrompt } from './lib/magic-format';
 import {
   LocalTranscriber,
   TranscriptionResult,
@@ -489,10 +490,7 @@ export default function App() {
     setHistory((prev) => prev.map((h) => (h.id === id ? { ...h, isEnhancing: true } : h)));
 
     try {
-      const format = formatId
-        ? magicFormats.find((f) => f.id === formatId)
-        : magicFormats.find((f) => f.isDefault);
-      const customPrompt = format?.prompt;
+      const customPrompt = getFormatPrompt(magicFormats, formatId);
 
       const { text, metadata } = await orchestrator.enhance(item.text, customPrompt);
       setHistory((prev) =>
