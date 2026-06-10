@@ -19,6 +19,7 @@ import { Sidebar } from './components/Sidebar';
 import { TranscriptFeed } from './components/TranscriptFeed';
 import { StatsDashboard } from './components/StatsDashboard';
 import { SettingsWindow } from './components/Settings';
+import { DictionaryView } from './components/DictionaryView';
 import { ToastContainer, ToastMessage } from './components/Toast';
 import { AudioSettings, GeneralSettings, ModelMetadata, MagicFormat, AIConfig } from './types';
 import { motion, AnimatePresence } from 'motion/react';
@@ -41,6 +42,13 @@ import {
 } from './lib/history';
 import { findFormatById, getFormatPrompt } from './lib/magic-format';
 import {
+  loadDictionary,
+  saveDictionary,
+  addDictionaryWord,
+  removeDictionaryWord,
+  formatDictionaryPrompt,
+} from './lib/dictionary';
+import {
   LocalTranscriber,
   TranscriptionResult,
   TranscriptionModel,
@@ -57,7 +65,7 @@ const LANGUAGES = [
 
 export default function App() {
   // State
-  const [activeView, setActiveView] = useState<'home' | 'settings'>('home');
+  const [activeView, setActiveView] = useState<'home' | 'settings' | 'dictionary'>('home');
   const [isRecording, setIsRecording] = useState(false);
   const [isMac, setIsMac] = useState(false);
   const [currentText, setCurrentText] = useState('');
@@ -133,6 +141,12 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('vnote_general_settings', JSON.stringify(generalSettings));
   }, [generalSettings]);
+
+  const [dictionary, setDictionary] = useState<string[]>(loadDictionary);
+
+  useEffect(() => {
+    saveDictionary(dictionary);
+  }, [dictionary]);
 
   // Save state to localStorage
   useEffect(() => {
@@ -372,9 +386,15 @@ export default function App() {
           const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
           try {
             if (!orchestrator) throw new Error('Orchestrator no inicializado.');
+            const dictPrompt = formatDictionaryPrompt(dictionary);
+            const enhancedLangPrompt = dictPrompt
+              ? `${dictPrompt}\n\n${currentLang.geminiPrompt === 'auto'
+                  ? 'Detect the spoken language and respond in that language.'
+                  : `Transcribe in ${currentLang.geminiPrompt}.`}`
+              : currentLang.geminiPrompt;
             const { text, metadata } = await orchestrator.transcribe(
               audioBlob,
-              currentLang.geminiPrompt
+              enhancedLangPrompt
             );
             if (text.trim()) {
               addResult(text, metadata);
@@ -382,30 +402,17 @@ export default function App() {
               setError('No se detectó voz clara.');
             }
           } catch (err: any) {
-            console.error('Cloud transcription failed, falling back to local:', err);
+            console.error('Cloud transcription failed:', err);
             addToast(
               'warning',
-              'Cloud Provider Failure',
-              'Falling back to Local Transcription. Your tokens may be depleted.',
+              'Transcription Failed',
+              'All cloud providers failed. Switch to Local mode and try recording again.',
               [
                 { label: 'Claude.ai', url: 'https://claude.ai' },
                 { label: 'OpenRouter', url: 'https://openrouter.ai' },
               ]
             );
-
-            // Start Local Fallback
-            if (!localTranscriberRef.current) {
-              localTranscriberRef.current = new LocalTranscriber(
-                (text) => setCurrentText(text),
-                () => {
-                  setIsRecording(false);
-                  stopVisualizer();
-                }
-              );
-            }
-            // Since we already have the blob, local transcriber isn't helpful for PAST audio,
-            // but we can at least inform the user.
-            setError('Cloud failed. Try recording again in Local mode or check your API keys.');
+            setError('Cloud transcription failed. Switch to Local mode and record again.');
           } finally {
             setIsProcessing(false);
           }
@@ -415,6 +422,16 @@ export default function App() {
       }
       setIsRecording(true);
     } catch (err: any) {
+      // Clean up timer if it was started before the error
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+      setRecordingTime(0);
+
+      // Clean up stream and visualizer if they were set up
+      stopVisualizer();
+
       setError('No se pudo acceder al micrófono. Por favor, concede los permisos.');
       console.error(err);
     }
@@ -467,6 +484,14 @@ export default function App() {
       setCopiedId(newEntry.id);
       setTimeout(() => setCopiedId(null), 2000);
     }
+  };
+
+  const handleAddDictionaryWord = (word: string) => {
+    setDictionary((prev) => addDictionaryWord(prev, word));
+  };
+
+  const handleRemoveDictionaryWord = (word: string) => {
+    setDictionary((prev) => removeDictionaryWord(prev, word));
   };
 
   const copyToClipboard = (text: string, id: string) => {
@@ -573,7 +598,13 @@ export default function App() {
 
     try {
       const currentLang = LANGUAGES[langIndex];
-      const { text, metadata } = await orchestrator.transcribe(file, currentLang.geminiPrompt);
+      const dictPrompt = formatDictionaryPrompt(dictionary);
+      const enhancedLangPrompt = dictPrompt
+        ? `${dictPrompt}\n\n${currentLang.geminiPrompt === 'auto'
+            ? 'Detect the spoken language and respond in that language.'
+            : `Transcribe in ${currentLang.geminiPrompt}.`}`
+        : currentLang.geminiPrompt;
+      const { text, metadata } = await orchestrator.transcribe(file, enhancedLangPrompt);
       if (text.trim()) {
         addResult(text, metadata);
       } else {
@@ -647,6 +678,13 @@ export default function App() {
             aiConfig={aiConfig}
             setAiConfig={setAiConfig}
             initialCategory={settingsCategory}
+          />
+        ) : activeView === 'dictionary' ? (
+          <DictionaryView
+            words={dictionary}
+            onAdd={handleAddDictionaryWord}
+            onRemove={handleRemoveDictionaryWord}
+            onClose={() => setActiveView('home')}
           />
         ) : (
           <>

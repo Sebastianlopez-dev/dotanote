@@ -19,9 +19,9 @@ export class GroqProvider implements AIProvider {
     formData.append('model', this.whisperModel);
 
     if (languagePrompt !== 'auto') {
-      // Note: Groq expects ISO codes or names depending on the model,
-      // but let's pass it as a prompt for better results.
       formData.append('prompt', `The audio is in ${languagePrompt}. Transcribe it exactly.`);
+    } else {
+      formData.append('prompt', 'Detect the spoken language. Transcribe exactly what is said in the detected language.');
     }
 
     const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {
@@ -51,8 +51,8 @@ export class GroqProvider implements AIProvider {
     customPrompt?: string
   ): Promise<{ text: string; metadata: ModelMetadata }> {
     const prompt = customPrompt
-      ? `${customPrompt}\n\nTRANSCRIPCIÓN: "${text}"`
-      : `Actúa como un asistente ejecutivo experto. Transforma esta transcripción en una nota profesional y estructurada. TRANSCRIPCIÓN: "${text}"`;
+      ? `${customPrompt}\n\nTRANSCRIPT: "${text}"`
+      : `Act as an expert executive assistant. Transform this transcript into a professional, structured note. TRANSCRIPT: "${text}"`;
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -66,7 +66,7 @@ export class GroqProvider implements AIProvider {
           {
             role: 'system',
             content:
-              'Eres un asistente ejecutivo de alto nivel que resume y organiza notas de voz con precisión extrema.',
+              'You are a high-level executive assistant who summarizes and organizes voice notes with extreme precision.',
           },
           { role: 'user', content: prompt },
         ],

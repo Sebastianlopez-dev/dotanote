@@ -15,7 +15,7 @@ import { AIConfig } from '../types';
 interface SidebarProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  onNavigate: (view: 'home' | 'settings') => void;
+  onNavigate: (view: 'home' | 'settings' | 'dictionary') => void;
   aiConfig: AIConfig;
 }
 
@@ -57,7 +57,7 @@ export function Sidebar({ isOpen, setIsOpen, onNavigate, aiConfig }: SidebarProp
           isOpen={isOpen}
           onClick={() => onNavigate('home')}
         />
-        <NavItem icon={<Book size={18} />} label="Dictionary" isOpen={isOpen} onClick={() => {}} />
+        <NavItem icon={<Book size={18} />} label="Dictionary" isOpen={isOpen} onClick={() => onNavigate('dictionary')} />
       </nav>
 
       <div className={cn('space-y-2 border-t border-white/5', isOpen ? 'p-4' : 'p-2')}>

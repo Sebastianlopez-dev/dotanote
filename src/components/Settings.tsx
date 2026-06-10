@@ -118,15 +118,60 @@ export function SettingsWindow({
 }
 
 function ShortcutSettings() {
-  const [shortcuts, setShortcuts] = useState([
-    { id: 'rec', label: 'Start/Stop Recording', keys: 'Ctrl + Space' },
-    { id: 'side', label: 'Toggle Sidebar', keys: 'Cmd + J' },
-    { id: 'dash', label: 'Toggle Dashboard', keys: 'Cmd + L' },
-    { id: 'focus', label: 'Focus Mode (Toggle Panels)', keys: 'Cmd + K' },
-    { id: 'settings', label: 'Open Settings', keys: 'Cmd + P / Cmd + ,' },
-    { id: 'magic', label: 'Open Magic Formats', keys: 'Cmd + N' },
-  ]);
+  const [shortcuts, setShortcuts] = useState(() => {
+    const saved = localStorage.getItem('vnote_shortcuts');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {
+        // fall through to defaults
+      }
+    }
+    return [
+      { id: 'rec', label: 'Start/Stop Recording', keys: 'Ctrl + Space' },
+      { id: 'side', label: 'Toggle Sidebar', keys: 'Cmd + J' },
+      { id: 'dash', label: 'Toggle Dashboard', keys: 'Cmd + L' },
+      { id: 'focus', label: 'Focus Mode (Toggle Panels)', keys: 'Cmd + K' },
+      { id: 'settings', label: 'Open Settings', keys: 'Cmd + P / Cmd + ,' },
+      { id: 'magic', label: 'Open Magic Formats', keys: 'Cmd + N' },
+    ];
+  });
   const [capturingId, setCapturingId] = useState<string | null>(null);
+
+  // Persist shortcuts whenever they change
+  useEffect(() => {
+    localStorage.setItem('vnote_shortcuts', JSON.stringify(shortcuts));
+  }, [shortcuts]);
+
+  // Real keyboard capture when a shortcut is being reassigned
+  useEffect(() => {
+    if (!capturingId) return;
+
+    const handleCapture = (e: KeyboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const parts: string[] = [];
+      if (e.metaKey) parts.push('Cmd');
+      if (e.ctrlKey) parts.push('Ctrl');
+      if (e.altKey) parts.push('Alt');
+      if (e.shiftKey) parts.push('Shift');
+
+      // Ignore modifier-only presses
+      if (['Control', 'Alt', 'Shift', 'Meta'].includes(e.key)) return;
+
+      const key = e.key === ' ' ? 'Space' : e.key.length === 1 ? e.key.toUpperCase() : e.key;
+      parts.push(key);
+
+      setShortcuts((prev) =>
+        prev.map((s) => (s.id === capturingId ? { ...s, keys: parts.join(' + ') } : s))
+      );
+      setCapturingId(null);
+    };
+
+    window.addEventListener('keydown', handleCapture, true);
+    return () => window.removeEventListener('keydown', handleCapture, true);
+  }, [capturingId]);
 
   const startCapture = (id: string) => {
     setCapturingId(id);

@@ -19,8 +19,8 @@ export class QwenProvider implements AIProvider {
     customPrompt?: string
   ): Promise<{ text: string; metadata: ModelMetadata }> {
     const prompt = customPrompt
-      ? `${customPrompt}\n\nTRANSCRIPCIÓN: "${text}"`
-      : `Actúa como un asistente ejecutivo experto. Transforma esta transcripción en una nota profesional y estructurada. TRANSCRIPCIÓN: "${text}"`;
+      ? `${customPrompt}\n\nTRANSCRIPT: "${text}"`
+      : `Act as an expert executive assistant. Transform this transcript into a professional, structured note. TRANSCRIPT: "${text}"`;
 
     // Qwen (Alibaba Dashscope) has an OpenAI compatible endpoint
     const response = await fetch(

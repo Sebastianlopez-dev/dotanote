@@ -21,11 +21,11 @@ export class GeminiProvider implements AIProvider {
     });
 
     const strictRule =
-      "REGLA ESTRICTA: Devuelve ÚNICAMENTE el texto transcrito. NO incluyas introducciones, explicaciones, ni frases como 'Aquí tienes la transcripción'. Solo el texto exacto del audio.";
+      "STRICT RULE: Return ONLY the transcribed text. Do NOT include introductions, explanations, or phrases like 'Here is the transcription'. Only the exact audio text.";
     const promptText =
       languagePrompt === 'auto'
-        ? `Transcribe exactamente lo que se dice en este audio en el idioma que detectes. ${strictRule}`
-        : `Transcribe exactamente lo que se dice en este audio en ${languagePrompt}. ${strictRule}`;
+        ? `Detect the spoken language in this audio. Transcribe exactly what is said, responding in the same language you detect — do NOT translate. ${strictRule}`
+        : `Transcribe exactly what is said in this audio in ${languagePrompt}. ${strictRule}`;
 
     const response = await this.ai.models.generateContent({
       model: this.modelName,
@@ -50,8 +50,8 @@ export class GeminiProvider implements AIProvider {
     customPrompt?: string
   ): Promise<{ text: string; metadata: ModelMetadata }> {
     const prompt = customPrompt
-      ? `${customPrompt}\n\nTRANSCRIPCIÓN: "${text}"`
-      : `Actúa como un asistente ejecutivo experto. Transforma esta transcripción en una nota profesional y estructurada. TRANSCRIPCIÓN: "${text}"`;
+      ? `${customPrompt}\n\nTRANSCRIPT: "${text}"`
+      : `Act as an expert executive assistant. Transform this transcript into a professional, structured note. TRANSCRIPT: "${text}"`;
 
     const response = await this.ai.models.generateContent({
       model: this.modelName,
