@@ -67,6 +67,8 @@ A high-performance, minimalist voice transcription tool built for professionals.
 | Linting | ESLint (flat config, TypeScript-aware) |
 | Formatting | Prettier |
 
+> **React 19 + types**: React 19 does not bundle its TypeScript declarations. `@types/react` and `@types/react-dom` are installed as dev dependencies. This matters for class components (`Component.state`, `setState`) — functional components with hooks work without them, but class components crash `tsc` until the types are present.
+
 ---
 
 ## Getting Started
@@ -94,6 +96,25 @@ pnpm dev
 ```
 
 The app will be available at `http://localhost:3000`.
+
+### Dependencies at a glance
+
+`pnpm install` pulls in everything — here's what each key package does:
+
+| Package | Role |
+|---------|------|
+| `react` / `react-dom` | UI framework (React 19) |
+| `vite` | Bundler + dev server |
+| `tailwindcss` / `@tailwindcss/vite` | Utility-first CSS (v4, Vite-native plugin) |
+| `motion` | Declarative animations (Framer Motion) |
+| `lucide-react` | Icon library (18px nav, 16px actions, 14px indicators) |
+| `clsx` / `tailwind-merge` | Conditional class composition (exposed via `cn()` in `src/lib/utils`) |
+| `@google/genai` | Gemini AI provider |
+| `vitest` | Test runner |
+| `@testing-library/react` / `jsdom` | Component testing |
+| `@types/react` / `@types/react-dom` | TypeScript declarations for React 19 |
+| `typescript` | Type checking (`pnpm type-check`) |
+| `eslint` / `prettier` | Linting + formatting |
 
 ### Available Scripts
 
