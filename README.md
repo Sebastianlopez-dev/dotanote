@@ -6,7 +6,7 @@ A high-performance, minimalist voice transcription tool built for professionals.
 ![React](https://img.shields.io/badge/React-19-61dafb)
 ![Vite](https://img.shields.io/badge/Vite-6-646cff)
 ![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)
-![Tests](https://img.shields.io/badge/tests-64%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-67%20passing-brightgreen)
 
 ---
 
@@ -110,6 +110,49 @@ The app will be available at `http://localhost:3000`.
 
 ---
 
+## Testing
+
+All tests live in `src/test/` and run with **Vitest + Testing Library + jsdom**.
+
+### Run all tests
+
+```bash
+pnpm test
+```
+
+### Run a single test file
+
+```bash
+pnpm test -- src/test/error-boundary.test.tsx
+```
+
+### Watch mode (reruns on save)
+
+```bash
+pnpm test:watch
+```
+
+### Test suites
+
+| File | Tests | What it covers |
+|------|-------|----------------|
+| `error-boundary.test.tsx` | 3 | Crash recovery: renders children, catches thrown errors, recovers on "Try again" click |
+| `settings.test.ts` | 19 | Settings factories, defaults, localStorage persistence |
+| `history.test.ts` | 16 | History CRUD: add, delete, pin, clear, localStorage round-trip |
+| `magic-format.test.ts` | 17 | Format lookup, prompt generation, custom format management |
+| `orchestrator.test.ts` | 12 | AI Orchestrator circuit breaker: provider failover, error aggregation |
+| `sanity.test.ts` | 1 | Guard: confirms test runner is wired correctly |
+
+### Type checking
+
+```bash
+pnpm type-check
+```
+
+Runs `tsc --noEmit` to catch type errors without building.
+
+---
+
 ## Project Structure
 
 ```
@@ -118,6 +161,12 @@ src/
 ├── main.tsx             # Entry point
 ├── types.ts             # Shared TypeScript interfaces
 ├── components/          # React components
+│   ├── ErrorBoundary.tsx     # Crash recovery with dark-luxury fallback
+│   ├── Sidebar.tsx
+│   ├── Settings.tsx
+│   ├── StatsDashboard.tsx
+│   ├── Toast.tsx
+│   └── TranscriptFeed.tsx
 ├── services/            # Business logic
 │   ├── AIOrchestrator.ts    # AI provider management with circuit breaker
 │   ├── transcription.ts     # Transcription engine
@@ -127,11 +176,12 @@ src/
 │   ├── history.ts           # History CRUD operations
 │   └── magic-format.ts      # Format selection and prompts
 └── test/                # Test suites
-    ├── settings.test.ts     # Settings persistence (19 tests)
-    ├── history.test.ts      # History management (16 tests)
-    ├── magic-format.test.ts # Magic format pipeline (17 tests)
-    ├── orchestrator.test.ts # AI Orchestrator fallback (12 tests)
-    └── setup.ts             # Vitest setup
+    ├── error-boundary.test.tsx  # Crash recovery (3 tests)
+    ├── settings.test.ts         # Settings persistence (19 tests)
+    ├── history.test.ts          # History management (16 tests)
+    ├── magic-format.test.ts     # Magic format pipeline (17 tests)
+    ├── orchestrator.test.ts     # AI Orchestrator fallback (12 tests)
+    └── setup.ts                 # Vitest setup
 ```
 
 ---
