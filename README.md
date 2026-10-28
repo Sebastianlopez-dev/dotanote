@@ -8,27 +8,35 @@ A high-performance, minimalist voice transcription tool built for professionals.
 ![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)
 ![Tests](https://img.shields.io/badge/tests-67%20passing-brightgreen)
 
+![dotanote home view with transcription history and stats dashboard](docs/screenshots/home.png)
+
+_Screenshots use sample transcription history and vocabulary for demonstration._
+
 ---
 
 ## Features
 
 ### Transcription Engine
+
 - **Hybrid model** — Gemini (high precision) or Web Speech API (local, offline-capable)
 - **Dynamic capsule** — floating recording UI with real-time visualizer and language switching
 - **Multi-language** — English, Spanish, French, Portuguese, and auto-detection
 
 ### Magic Format
+
 - **One-click enhancement** — transform raw transcripts into structured notes, summaries, or business messages
 - **Smart formatting** — filler word removal, grammar correction, bullet-point structuring
 - **Auto-copy** — enhanced output copied to clipboard automatically
 
 ### Audio Pipeline
+
 - **Real-time monitoring** — hear your own voice while recording
 - **Hardware controls** — noise suppression and automatic gain control (AGC) toggles
 - **Device management** — dynamic mic/speaker selection
 - **Frequency visualizer** — real-time audio spectrum in the recording capsule
 
 ### AI Backend
+
 - **AI Orchestrator** — centralized provider management with circuit breaker pattern
 - **Automatic failover** — if the primary provider fails, the next one takes over seamlessly
 - **Multi-model support** — plug in Gemini, Groq, OpenRouter, or custom providers
@@ -36,15 +44,16 @@ A high-performance, minimalist voice transcription tool built for professionals.
 
 ### Keyboard Shortcuts
 
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl + Space` | Toggle recording |
-| `Cmd/Ctrl + J` | Toggle sidebar |
-| `Cmd/Ctrl + L` | Toggle stats dashboard |
+| Shortcut       | Action                       |
+| -------------- | ---------------------------- |
+| `Ctrl + Space` | Toggle recording             |
+| `Cmd/Ctrl + J` | Toggle sidebar               |
+| `Cmd/Ctrl + L` | Toggle stats dashboard       |
 | `Cmd/Ctrl + K` | Focus mode (hide all panels) |
-| `Alt + Z` | Push-to-talk |
+| `Alt + Z`      | Push-to-talk                 |
 
 ### Design System
+
 - **Aesthetic** — Dark luxury / technical tool. Background `#0a0a0a` with glassmorphism overlays
 - **Typography** — Apple system fonts for UI, JetBrains Mono for technical data
 - **Icons** — lucide-react (18px nav, 16px actions, 14px indicators)
@@ -53,19 +62,29 @@ A high-performance, minimalist voice transcription tool built for professionals.
 
 ---
 
+## Screenshots
+
+| Dictionary                                                                                    | Settings                                           |
+| --------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| ![Custom vocabulary dictionary](docs/screenshots/dictionary.png)                              | ![General settings](docs/screenshots/settings.png) |
+| **Magic Formats**                                                                             |                                                    |
+| ![Magic Formats settings with custom AI prompts](docs/screenshots/settings-magic-formats.png) |                                                    |
+
+---
+
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Runtime | Node.js, TypeScript 5.8 |
-| Framework | React 19 + Vite 6 |
-| Styling | Tailwind CSS v4 |
-| Animations | Framer Motion |
-| Icons | lucide-react |
-| Package manager | pnpm |
-| Testing | Vitest + Testing Library + jsdom |
-| Linting | ESLint (flat config, TypeScript-aware) |
-| Formatting | Prettier |
+| Layer           | Technology                             |
+| --------------- | -------------------------------------- |
+| Runtime         | Node.js, TypeScript 5.8                |
+| Framework       | React 19 + Vite 6                      |
+| Styling         | Tailwind CSS v4                        |
+| Animations      | Framer Motion                          |
+| Icons           | lucide-react                           |
+| Package manager | pnpm                                   |
+| Testing         | Vitest + Testing Library + jsdom       |
+| Linting         | ESLint (flat config, TypeScript-aware) |
+| Formatting      | Prettier                               |
 
 > **React 19 + types**: React 19 does not bundle its TypeScript declarations. `@types/react` and `@types/react-dom` are installed as dev dependencies. This matters for class components (`Component.state`, `setState`) — functional components with hooks work without them, but class components crash `tsc` until the types are present.
 
@@ -74,6 +93,7 @@ A high-performance, minimalist voice transcription tool built for professionals.
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18+
 - pnpm (install via `npm install -g pnpm`)
 
@@ -101,33 +121,33 @@ The app will be available at `http://localhost:3000`.
 
 `pnpm install` pulls in everything — here's what each key package does:
 
-| Package | Role |
-|---------|------|
-| `react` / `react-dom` | UI framework (React 19) |
-| `vite` | Bundler + dev server |
-| `tailwindcss` / `@tailwindcss/vite` | Utility-first CSS (v4, Vite-native plugin) |
-| `motion` | Declarative animations (Framer Motion) |
-| `lucide-react` | Icon library (18px nav, 16px actions, 14px indicators) |
-| `clsx` / `tailwind-merge` | Conditional class composition (exposed via `cn()` in `src/lib/utils`) |
-| `@google/genai` | Gemini AI provider |
-| `vitest` | Test runner |
-| `@testing-library/react` / `jsdom` | Component testing |
-| `@types/react` / `@types/react-dom` | TypeScript declarations for React 19 |
-| `typescript` | Type checking (`pnpm type-check`) |
-| `eslint` / `prettier` | Linting + formatting |
+| Package                             | Role                                                                  |
+| ----------------------------------- | --------------------------------------------------------------------- |
+| `react` / `react-dom`               | UI framework (React 19)                                               |
+| `vite`                              | Bundler + dev server                                                  |
+| `tailwindcss` / `@tailwindcss/vite` | Utility-first CSS (v4, Vite-native plugin)                            |
+| `motion`                            | Declarative animations (Framer Motion)                                |
+| `lucide-react`                      | Icon library (18px nav, 16px actions, 14px indicators)                |
+| `clsx` / `tailwind-merge`           | Conditional class composition (exposed via `cn()` in `src/lib/utils`) |
+| `@google/genai`                     | Gemini AI provider                                                    |
+| `vitest`                            | Test runner                                                           |
+| `@testing-library/react` / `jsdom`  | Component testing                                                     |
+| `@types/react` / `@types/react-dom` | TypeScript declarations for React 19                                  |
+| `typescript`                        | Type checking (`pnpm type-check`)                                     |
+| `eslint` / `prettier`               | Linting + formatting                                                  |
 
 ### Available Scripts
 
-| Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start development server |
-| `pnpm build` | Production build |
-| `pnpm preview` | Preview production build |
-| `pnpm test` | Run all tests |
-| `pnpm test:watch` | Run tests in watch mode |
-| `pnpm lint` | Run ESLint |
-| `pnpm format` | Format code with Prettier |
-| `pnpm type-check` | TypeScript type checking |
+| Command           | Description               |
+| ----------------- | ------------------------- |
+| `pnpm dev`        | Start development server  |
+| `pnpm build`      | Production build          |
+| `pnpm preview`    | Preview production build  |
+| `pnpm test`       | Run all tests             |
+| `pnpm test:watch` | Run tests in watch mode   |
+| `pnpm lint`       | Run ESLint                |
+| `pnpm format`     | Format code with Prettier |
+| `pnpm type-check` | TypeScript type checking  |
 
 ---
 
@@ -155,14 +175,14 @@ pnpm test:watch
 
 ### Test suites
 
-| File | Tests | What it covers |
-|------|-------|----------------|
-| `error-boundary.test.tsx` | 3 | Crash recovery: renders children, catches thrown errors, recovers on "Try again" click |
-| `settings.test.ts` | 19 | Settings factories, defaults, localStorage persistence |
-| `history.test.ts` | 16 | History CRUD: add, delete, pin, clear, localStorage round-trip |
-| `magic-format.test.ts` | 17 | Format lookup, prompt generation, custom format management |
-| `orchestrator.test.ts` | 12 | AI Orchestrator circuit breaker: provider failover, error aggregation |
-| `sanity.test.ts` | 1 | Guard: confirms test runner is wired correctly |
+| File                      | Tests | What it covers                                                                         |
+| ------------------------- | ----- | -------------------------------------------------------------------------------------- |
+| `error-boundary.test.tsx` | 3     | Crash recovery: renders children, catches thrown errors, recovers on "Try again" click |
+| `settings.test.ts`        | 19    | Settings factories, defaults, localStorage persistence                                 |
+| `history.test.ts`         | 16    | History CRUD: add, delete, pin, clear, localStorage round-trip                         |
+| `magic-format.test.ts`    | 17    | Format lookup, prompt generation, custom format management                             |
+| `orchestrator.test.ts`    | 12    | AI Orchestrator circuit breaker: provider failover, error aggregation                  |
+| `sanity.test.ts`          | 1     | Guard: confirms test runner is wired correctly                                         |
 
 ### Type checking
 
