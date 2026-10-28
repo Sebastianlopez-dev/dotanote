@@ -1,12 +1,11 @@
 # dotanote
 
-A high-performance, minimalist voice transcription tool built for professionals. Dark luxury aesthetic, hybrid AI engine, and keyboard-driven efficiency.
+Voice transcription app combining speech-to-text with LLM-powered text enhancement
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue)
 ![React](https://img.shields.io/badge/React-19-61dafb)
 ![Vite](https://img.shields.io/badge/Vite-6-646cff)
 ![Tailwind](https://img.shields.io/badge/Tailwind-v4-38bdf8)
-![Tests](https://img.shields.io/badge/tests-67%20passing-brightgreen)
 
 ![dotanote home view with transcription history and stats dashboard](docs/screenshots/home.png)
 
@@ -16,31 +15,31 @@ _Screenshots use sample transcription history and vocabulary for demonstration._
 
 ## Features
 
-### Transcription Engine
+### Transcription
 
-- **Hybrid model** — Gemini (high precision) or Web Speech API (local, offline-capable)
-- **Dynamic capsule** — floating recording UI with real-time visualizer and language switching
-- **Multi-language** — English, Spanish, French, Portuguese, and auto-detection
+- **Cloud transcription** — Whisper via Groq or audio transcription with Gemini.
+- **Browser speech recognition** — uses the Web Speech API where supported. This does not guarantee on-device or offline processing.
+- **Recording controls** — floating panel with an audio visualizer and language selection.
+- **Languages** — English, Spanish, French, Portuguese, and automatic language detection for cloud transcription.
 
-### Magic Format
+### Text Enhancement (Magic Format)
 
-- **One-click enhancement** — transform raw transcripts into structured notes, summaries, or business messages
-- **Smart formatting** — filler word removal, grammar correction, bullet-point structuring
-- **Auto-copy** — enhanced output copied to clipboard automatically
+- **LLM-based rewriting** — turn a transcript into a note, summary, or message.
+- **Custom prompts** — define instructions for tone, structure, or wording.
+- **Optional auto-copy** — copy transcriptions and enhanced text to the clipboard when enabled.
 
-### Audio Pipeline
+### Audio Settings
 
-- **Real-time monitoring** — hear your own voice while recording
-- **Hardware controls** — noise suppression and automatic gain control (AGC) toggles
-- **Device management** — dynamic mic/speaker selection
-- **Frequency visualizer** — real-time audio spectrum in the recording capsule
+- **Microphone options** — request noise suppression and automatic gain control through browser audio constraints. Support depends on the browser and device.
+- **Device selection** — microphone and speaker selection controls in settings.
+- **Audio visualizer** — displays audio levels while recording.
 
-### AI Backend
+### AI Providers
 
-- **AI Orchestrator** — centralized provider management with circuit breaker pattern
-- **Automatic failover** — if the primary provider fails, the next one takes over seamlessly
-- **Multi-model support** — plug in Gemini, Groq, OpenRouter, or custom providers
-- **Metadata telemetry** — every transcription tracks which model and provider generated it
+- **Transcription** — Groq and Gemini integrations.
+- **Text enhancement** — Anthropic, Qwen, Gemini, Groq, and OpenRouter integrations.
+- **Sequential fallback** — tries the next configured provider when a request fails.
+- **Model attribution** — records the provider and model returned with a result; enhancement updates this information to the model used for rewriting.
 
 ### Keyboard Shortcuts
 
@@ -52,41 +51,33 @@ _Screenshots use sample transcription history and vocabulary for demonstration._
 | `Cmd/Ctrl + K` | Focus mode (hide all panels) |
 | `Alt + Z`      | Push-to-talk                 |
 
-### Design System
-
-- **Aesthetic** — Dark luxury / technical tool. Background `#0a0a0a` with glassmorphism overlays
-- **Typography** — Apple system fonts for UI, JetBrains Mono for technical data
-- **Icons** — lucide-react (18px nav, 16px actions, 14px indicators)
-- **Animations** — Framer Motion for all transitions
-- **Mobile-ready** — safe-area-inset aware, hidden scrollbars for Capacitor/iOS
-
 ---
 
 ## Screenshots
 
-| Dictionary                                                                                    | Settings                                           |
-| --------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| ![Custom vocabulary dictionary](docs/screenshots/dictionary.png)                              | ![General settings](docs/screenshots/settings.png) |
-| **Magic Formats**                                                                             |                                                    |
-| ![Magic Formats settings with custom AI prompts](docs/screenshots/settings-magic-formats.png) |                                                    |
+| Dictionary                                                       | Settings                                           |
+| ---------------------------------------------------------------- | -------------------------------------------------- |
+| ![Custom vocabulary dictionary](docs/screenshots/dictionary.png) | ![General settings](docs/screenshots/settings.png) |
+
+### Magic Formats
+
+![Magic Formats settings with custom AI prompts](docs/screenshots/settings-magic-formats.png)
 
 ---
 
 ## Tech Stack
 
-| Layer           | Technology                             |
-| --------------- | -------------------------------------- |
-| Runtime         | Node.js, TypeScript 5.8                |
-| Framework       | React 19 + Vite 6                      |
-| Styling         | Tailwind CSS v4                        |
-| Animations      | Framer Motion                          |
-| Icons           | lucide-react                           |
-| Package manager | pnpm                                   |
-| Testing         | Vitest + Testing Library + jsdom       |
-| Linting         | ESLint (flat config, TypeScript-aware) |
-| Formatting      | Prettier                               |
-
-> **React 19 + types**: React 19 does not bundle its TypeScript declarations. `@types/react` and `@types/react-dom` are installed as dev dependencies. This matters for class components (`Component.state`, `setState`) — functional components with hooks work without them, but class components crash `tsc` until the types are present.
+| Area        | Technology                     |
+| ----------- | ------------------------------ |
+| Language    | TypeScript                     |
+| UI          | React                          |
+| Development | Vite, Node.js, pnpm            |
+| Styling     | Tailwind CSS                   |
+| Animations  | Motion                         |
+| Icons       | lucide-react                   |
+| Testing     | Vitest, Testing Library, jsdom |
+| Linting     | ESLint                         |
+| Formatting  | Prettier                       |
 
 ---
 
@@ -94,155 +85,97 @@ _Screenshots use sample transcription history and vocabulary for demonstration._
 
 ### Prerequisites
 
-- Node.js 18+
-- pnpm (install via `npm install -g pnpm`)
+- Node.js and pnpm
+- A supported browser with microphone access for recording
+- An API key for at least one cloud provider to use cloud transcription or text enhancement
 
 ### Setup
 
 ```bash
-# Clone the repo
 git clone https://github.com/Sebastianlopez-dev/dotanote.git
 cd dotanote
-
-# Install dependencies
 pnpm install
-
-# Set your Gemini API key
-cp .env.example .env.local
-# Edit .env.local and add your GEMINI_API_KEY
-
-# Start the dev server
 pnpm dev
 ```
 
-The app will be available at `http://localhost:3000`.
+Open `http://localhost:3000`.
 
-### Dependencies at a glance
+To use cloud providers, enter your keys in **Settings → AI Providers** with custom keys enabled. Alternatively, create `.env.local` in the project root with either or both of these variables:
 
-`pnpm install` pulls in everything — here's what each key package does:
+```dotenv
+VITE_GEMINI_API_KEY="your-gemini-key"
+VITE_GROQ_API_KEY="your-groq-key"
+```
 
-| Package                             | Role                                                                  |
-| ----------------------------------- | --------------------------------------------------------------------- |
-| `react` / `react-dom`               | UI framework (React 19)                                               |
-| `vite`                              | Bundler + dev server                                                  |
-| `tailwindcss` / `@tailwindcss/vite` | Utility-first CSS (v4, Vite-native plugin)                            |
-| `motion`                            | Declarative animations (Framer Motion)                                |
-| `lucide-react`                      | Icon library (18px nav, 16px actions, 14px indicators)                |
-| `clsx` / `tailwind-merge`           | Conditional class composition (exposed via `cn()` in `src/lib/utils`) |
-| `@google/genai`                     | Gemini AI provider                                                    |
-| `vitest`                            | Test runner                                                           |
-| `@testing-library/react` / `jsdom`  | Component testing                                                     |
-| `@types/react` / `@types/react-dom` | TypeScript declarations for React 19                                  |
-| `typescript`                        | Type checking (`pnpm type-check`)                                     |
-| `eslint` / `prettier`               | Linting + formatting                                                  |
+Restart the development server after changing `.env.local`. These environment keys are used when custom keys are disabled.
+
+Vite exposes `VITE_` variables to browser code. Do not deploy a public build containing private API keys. Cloud providers receive the audio or text submitted to them.
 
 ### Available Scripts
 
-| Command           | Description               |
-| ----------------- | ------------------------- |
-| `pnpm dev`        | Start development server  |
-| `pnpm build`      | Production build          |
-| `pnpm preview`    | Preview production build  |
-| `pnpm test`       | Run all tests             |
-| `pnpm test:watch` | Run tests in watch mode   |
-| `pnpm lint`       | Run ESLint                |
-| `pnpm format`     | Format code with Prettier |
-| `pnpm type-check` | TypeScript type checking  |
+| Command           | Description              |
+| ----------------- | ------------------------ |
+| `pnpm dev`        | Start development server |
+| `pnpm build`      | Build the app            |
+| `pnpm preview`    | Preview the built app    |
+| `pnpm test`       | Run tests                |
+| `pnpm test:watch` | Run tests in watch mode  |
+| `pnpm lint`       | Run ESLint               |
+| `pnpm format`     | Format source files      |
+| `pnpm type-check` | Check TypeScript types   |
 
 ---
 
 ## Testing
 
-All tests live in `src/test/` and run with **Vitest + Testing Library + jsdom**.
-
-### Run all tests
+Tests live in `src/test/` and use Vitest, Testing Library, and jsdom. They cover error-boundary recovery, settings persistence, transcription history, format selection, and provider fallback.
 
 ```bash
+# Run tests
 pnpm test
-```
 
-### Run a single test file
+# Run a single test file
+pnpm exec vitest run src/test/error-boundary.test.tsx
 
-```bash
-pnpm test -- src/test/error-boundary.test.tsx
-```
-
-### Watch mode (reruns on save)
-
-```bash
+# Watch mode
 pnpm test:watch
-```
 
-### Test suites
-
-| File                      | Tests | What it covers                                                                         |
-| ------------------------- | ----- | -------------------------------------------------------------------------------------- |
-| `error-boundary.test.tsx` | 3     | Crash recovery: renders children, catches thrown errors, recovers on "Try again" click |
-| `settings.test.ts`        | 19    | Settings factories, defaults, localStorage persistence                                 |
-| `history.test.ts`         | 16    | History CRUD: add, delete, pin, clear, localStorage round-trip                         |
-| `magic-format.test.ts`    | 17    | Format lookup, prompt generation, custom format management                             |
-| `orchestrator.test.ts`    | 12    | AI Orchestrator circuit breaker: provider failover, error aggregation                  |
-| `sanity.test.ts`          | 1     | Guard: confirms test runner is wired correctly                                         |
-
-### Type checking
-
-```bash
+# Type checking
 pnpm type-check
 ```
-
-Runs `tsc --noEmit` to catch type errors without building.
 
 ---
 
 ## Project Structure
 
-```
+```text
 src/
-├── App.tsx              # Main application component
-├── main.tsx             # Entry point
-├── types.ts             # Shared TypeScript interfaces
-├── components/          # React components
-│   ├── ErrorBoundary.tsx     # Crash recovery with dark-luxury fallback
-│   ├── Sidebar.tsx
-│   ├── Settings.tsx
-│   ├── StatsDashboard.tsx
-│   ├── Toast.tsx
-│   └── TranscriptFeed.tsx
-├── services/            # Business logic
-│   ├── AIOrchestrator.ts    # AI provider management with circuit breaker
-│   ├── transcription.ts     # Transcription engine
-│   └── providers/           # AI provider implementations
-├── lib/                 # Pure logic (extracted for testability)
-│   ├── settings.ts          # Settings factories and persistence
-│   ├── history.ts           # History CRUD operations
-│   └── magic-format.ts      # Format selection and prompts
-└── test/                # Test suites
-    ├── error-boundary.test.tsx  # Crash recovery (3 tests)
-    ├── settings.test.ts         # Settings persistence (19 tests)
-    ├── history.test.ts          # History management (16 tests)
-    ├── magic-format.test.ts     # Magic format pipeline (17 tests)
-    ├── orchestrator.test.ts     # AI Orchestrator fallback (12 tests)
-    └── setup.ts                 # Vitest setup
+├── App.tsx                # App state and UI coordination
+├── main.tsx               # Entry point
+├── types.ts               # Shared TypeScript interfaces
+├── components/            # Recording, transcription, settings, and other UI
+├── services/
+│   ├── AIOrchestrator.ts  # Provider selection and sequential fallback
+│   ├── transcription.ts  # Browser speech recognition wrapper
+│   └── providers/         # Provider integrations
+├── lib/                   # History, settings, dictionary, and format helpers
+└── test/                  # Tests and test setup
 ```
 
 ---
 
 ## Architecture
 
-dotanote follows a **service-layer architecture** with a central AI Orchestrator managing multiple provider implementations through a shared `AIProvider` interface. State is currently centralized in `App.tsx`, with a planned migration to Zustand.
+`App.tsx` manages application state and coordinates recording, transcription, and text enhancement. Provider integrations share an `AIProvider` interface with `transcribe` and `enhance` methods.
 
-### AI Provider Pattern
+`AIOrchestrator` builds separate provider lists for transcription and enhancement from the available keys. Their order is defined in its constructor:
 
-```
-AIOrchestrator
-  ├── prioritize(providers) → ordered by config
-  ├── transcribe(audio) → try each provider, failover on error
-  └── enhance(text)    → try each provider, aggregate errors
-       │
-       ├── GeminiProvider   (implements AIProvider)
-       ├── GroqProvider      (implements AIProvider)
-       └── ...custom providers
-```
+- **Transcription:** Groq → Gemini.
+- **Enhancement:** Anthropic → Qwen → Gemini → Groq → OpenRouter.
+
+For each request, it tries providers in sequence and returns the first successful response. If all configured providers fail, it throws the last error. If none are configured, it reports that no providers are available. This is sequential fallback, not a circuit breaker.
+
+Browser speech recognition uses a separate `LocalTranscriber` wrapper around the Web Speech API. Despite the class name, processing is not guaranteed to happen locally.
 
 ---
 
